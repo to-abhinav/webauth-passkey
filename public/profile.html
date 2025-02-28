@@ -19,7 +19,7 @@
         const url = new URL(window.location);
         const userId = url.searchParams.get("userId");
 
-        const response = await fetch("/register-challange", {
+        const response = await fetch("/register-challenge", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -31,10 +31,20 @@
         const challangeResult = await response.json();
         const { options } = challangeResult; //here we got options from server which is server side challange
 
-        const authenticationResult =
-          await SimpleWebAuthnBrowser.startRegistration(options);
+        const authenticationResult =await SimpleWebAuthnBrowser.startRegistration(options);
 
         console.log(authenticationResult);
+
+        const verificationResult= await fetch("/register-verify",{
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            cred : authenticationResult
+          })
+        })
       });
     </script>
   </body>

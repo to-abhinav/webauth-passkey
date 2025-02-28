@@ -14,7 +14,7 @@
         id="password"
         name="password"
       />
-      <button type="submit">Regiter</button>
+      <button type="submit"></button>
     </form>
     <script>
       const form = document.getElementById("register-form");
@@ -35,7 +35,9 @@
         });
         const result = await response.json();
         const { id } = result;
-        window.location.replace(`http://localhost:3000/profile.html?userId=${id}`);
+        window.location.replace(
+          `http://localhost:3000/profile.html?userId=${id}`
+        );
       });
     </script>
   </body>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+  </head>
+  <body>
+    <form id="login-form">
+      <input type="text" placeholder="userId" name="UserId" id="UserId" />
+      <button type="submit">Login</button>
+    </form>
+  </body>
+  <script src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
+
+  <script>
+    const form = document.getElementById("login-form");
+    const userIdFiled = document.getElementById("UserId");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const userId = userIdFiled.value;
+
+      const response = await fetch("/login-challenge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({userId}),
+      });
+
+      const challangeResult = await response.json();
+      const { options } = challangeResult;
+
+      const authenticationResult =
+        await SimpleWebAuthnBrowser.startAuthentication(options);
+      console.log(authenticationResult);
+
+      await fetch("/login-verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, cred: authenticationResult }),
+      });
+    });
+  </script>
+</html>
