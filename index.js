@@ -74,7 +74,7 @@ app.post("/register-verify", async (req, res) => {
 
   if (!verificationResult.verified)
     return res.json({ error: "could not verify" });
-  
+
   userStore[userId].passkey = verificationResult.registrationInfo;
   return res.json({ verified: true });
 });
@@ -86,12 +86,12 @@ app.post("/login-challenge", async (req, res) => {
   }
 
   const opts = await generateAuthenticationOptions({
-    rpID: 'localhost',
-})
+    rpID: "localhost",
+  });
 
   challengeStore[userId] = opts.challenge;
   console.log("oprions in login challenge", opts);
-  return res.json({ options: opts  });
+  return res.json({ options: opts });
 });
 
 app.post("/login-verify", async (req, res) => {
@@ -111,19 +111,22 @@ app.post("/login-verify", async (req, res) => {
 
   console.log("passkey", passkey);
 
+  function objectToUint8Array(obj) {
+    return new Uint8Array(Object.values(obj));
+  }
+
   
-    const result = await verifyAuthenticationResponse({
-      expectedChallenge: challenge,
-      expectedOrigin: "http://localhost:3000",
-      expectedRPID: "localhost",
-      response: cred,
-      authenticator: passkey.credentials,
-      counter: 0,
-      requireUserVerification: true
-    });
-   
-
-
+  const result = await verifyAuthenticationResponse({
+    expectedChallenge: challenge,
+    expectedOrigin: "http://localhost:3000",
+    expectedRPID: "localhost",
+    response: cred,
+    credential: {
+      id: passkey.credential.id,
+      publicKey: objectToUint8Array(passkey.credential.publicKey),
+      counter: passkey.credential.counter,
+    },
+  });
 
   if (!result.verified) return res.json({ error: "something went wrong" });
 
